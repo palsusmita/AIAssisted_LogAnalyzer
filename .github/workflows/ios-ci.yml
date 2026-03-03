@@ -1,0 +1,34 @@
+name: iOS CI/CD
+
+on:
+  push:
+    branches: [ dev, Feature_branch2 ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+
+      - name: Clean build folder
+        run: rm -rf build
+
+      - name: Archive App (no signing)
+        run: |
+          xcodebuild archive \
+            -scheme AIAssisted_LogAnalyzer \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/AIAssisted_LogAnalyzer.xcarchive \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload Archive Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-archive
+          path: build/AIAssisted_LogAnalyzer.xcarchive
